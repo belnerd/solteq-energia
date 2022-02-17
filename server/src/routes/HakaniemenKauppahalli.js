@@ -44,14 +44,16 @@ const createMonthlyTable = (data, month, year) => {
   let html = `<h3>${months[month]}</h3>`;
   let startDate = new Date();
   let endDate = new Date();
+  // Set the first and last days of the month
   startDate.setFullYear(year, month, 0);
   endDate.setFullYear(year, month + 1, 0);
+  // Go through the data to get data for the whole month
   let array = helpers.filterByDates(data, startDate, endDate);
   const sum = helpers.calculateSum(array, 'value')
+  // Make the data more readable and then make HTML out of it
   array = transformData(array);
   html += helpers.objToHTMLTable(array);
-  
-  html += `<p>Yhteensä ${sum.toFixed(2)} kWh</p>`
+  html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`
   return html;
 };
 
@@ -62,7 +64,7 @@ router.get('/', (req, res, next) => {
   axios
     .get(apiURL)
     .then((response) => {
-      // makeCSVLog(response.data);
+      makeCSVLog(response.data);
       let html = '';
       for (let i = 0; i < months.length; i++) {
         html += createMonthlyTable(response.data, i, 2019);

@@ -62,7 +62,7 @@ module.exports = {
       html += '<tr>';
       let row = Object.values(array[i]);
       for (let j = 0; j < row.length; j++) {
-        html += `<td>${row[j]}</td>`;
+        html += `<td class="${keys[j]}">${row[j]}</td>`;
       }
       html += '</tr>';
     }

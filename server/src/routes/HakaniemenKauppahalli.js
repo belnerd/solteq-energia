@@ -5,15 +5,32 @@ const router = express.Router();
 // Include helper functions
 const helpers = require('../helpers');
 
+const months = [
+  'Tammikuu',
+  'Helmikuu',
+  'Maaliskuu',
+  'Huhtikuu',
+  'Toukokuu',
+  'Kesäkuu',
+  'Heinäkuu',
+  'Elokuu',
+  'Syyskuu',
+  'Lokakuu',
+  'Marraskuu',
+  'Joulukuu',
+];
 
-const transformData = (obj) => {
-  let objArray = obj
-  objArray.forEach(x => {
-    x.timestamp = new Date(x.timestamp).toLocaleDateString()
-  })
-  return objArray
+// Transform the data to a more readable format
+const transformData = (objData) => {
+  let objArray = JSON.parse(JSON.stringify(objData));
+  objArray.forEach((x) => {
+    x.timestamp = new Date(x.timestamp).toLocaleDateString();
+    x.value = x.value.toFixed(2);
+  });
+  return objArray;
 };
 
+// Create a CSV file from the data passed
 const makeCSVLog = (data) => {
   const CSV = helpers.convertToCSV(data, true);
   const now = helpers.createDatestring(Date.now());
@@ -22,7 +39,21 @@ const makeCSVLog = (data) => {
   helpers.exportCSV(CSV, filename);
 };
 
-const getMonthlyData = (obj, month) => {};
+// Create a monthly HTML table from the given data
+const createMonthlyTable = (data, month, year) => {
+  let html = `<h3>${months[month]}</h3>`;
+  let startDate = new Date();
+  let endDate = new Date();
+  startDate.setFullYear(year, month, 0);
+  endDate.setFullYear(year, month + 1, 0);
+  let array = helpers.filterByDates(data, startDate, endDate);
+  const sum = helpers.calculateSum(array, 'value')
+  array = transformData(array);
+  html += helpers.objToHTMLTable(array);
+  
+  html += `<p>Yhteensä ${sum.toFixed(2)} kWh</p>`
+  return html;
+};
 
 // GET from API with fixed URL and parameters, then process the response
 router.get('/', (req, res, next) => {
@@ -31,14 +62,11 @@ router.get('/', (req, res, next) => {
   axios
     .get(apiURL)
     .then((response) => {
-      //   makeCSVLog(response.data);
-      // let values = Object.values(response.data[0]);
-      // let date = new Date(values[0]);
-      // console.log(date.toLocaleDateString('fi-FI'));
-      // getMonthlyData(response.data, 1);
-      let data = transformData(response.data);
-      let headers = ['aika','ryhmä','paikka','kulutus','yksikkö']
-      const html = helpers.objToHTMLTable(data, headers);
+      // makeCSVLog(response.data);
+      let html = '';
+      for (let i = 0; i < months.length; i++) {
+        html += createMonthlyTable(response.data, i, 2019);
+      }
       res.send(html);
     })
     .catch((error) => {

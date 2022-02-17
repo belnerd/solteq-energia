@@ -1,5 +1,3 @@
-const { time } = require('console');
-
 module.exports = {
   // Convert passed object to CSV
   convertToCSV: (obj, header) => {
@@ -48,17 +46,12 @@ module.exports = {
   },
 
   // Create a HTML table out of provided object
-  objToHTMLTable(obj, headers = false) {
+  objToHTMLTable(obj) {
     // Make sure obj is indeed an object
     let array = typeof obj != 'object' ? JSON.parse(obj) : obj;
     let html = '<table><tbody id="tbody"><tr>';
     // Add table headers
-    if (!headers) {
-      const keys = Object.keys(array[0]);
-    } else {
-      const keys = [...headers];
-    }
-
+    const keys = Object.keys(array[0]);
     for (let i = 0; i < keys.length; i++) {
       html += `<th>${keys[i]}</th>`;
     }
@@ -76,4 +69,21 @@ module.exports = {
     html += '</tbody></table>';
     return html;
   },
+
+  // Filter given object by a range of dates
+  filterByDates(obj, start, end) {
+    let startDate = new Date(start);
+    let endDate = new Date(end);
+    let result = obj.filter((x) => {
+      let date = new Date(x.timestamp);
+      return date >= startDate && date <= endDate;
+    });
+    return result;
+  },
+
+  // Calculate sum of an object's values for given key
+  calculateSum(obj, key) {
+    const sum = obj.map(item => item[key]).reduce((prev, curr) => prev + curr, 0)
+    return sum;
+  }
 };

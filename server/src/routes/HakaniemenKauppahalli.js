@@ -20,6 +20,9 @@ const months = [
   'Joulukuu',
 ];
 
+const baseURL =
+  'https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Daily/ListByProperty?Record=LocationName&SearchString=1000%20Hakaniemen%20kauppahalli&ReportingGroup=Electricity&';
+
 // Transform the data to a more readable format
 const transformData = (objData) => {
   let objArray = JSON.parse(JSON.stringify(objData));
@@ -49,23 +52,22 @@ const createMonthlyTable = (data, month, year) => {
   endDate.setFullYear(year, month + 1, 0);
   // Go through the data to get data for the whole month
   let array = helpers.filterByDates(data, startDate, endDate);
-  const sum = helpers.calculateSum(array, 'value')
+  const sum = helpers.calculateSum(array, 'value');
   // Make the data more readable and then make HTML out of it
   array = transformData(array);
   html += helpers.objToHTMLTable(array);
-  html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`
+  html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`;
   return html;
 };
 
 // GET from API with fixed URL and parameters, then process the response
 router.get('/', (req, res, next) => {
-  const apiURL =
-    'https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Daily/ListByProperty?Record=LocationName&SearchString=1000%20Hakaniemen%20kauppahalli&ReportingGroup=Electricity&StartTime=2019-01-01&EndTime=2019-12-31';
+  const apiURL = baseURL + 'StartTime=2019-01-01&EndTime=2019-12-31';
   axios
     .get(apiURL)
     .then((response) => {
-      makeCSVLog(response.data);
       let html = '';
+      makeCSVLog(response.data);
       for (let i = 0; i < months.length; i++) {
         html += createMonthlyTable(response.data, i, 2019);
       }
@@ -73,6 +75,27 @@ router.get('/', (req, res, next) => {
     })
     .catch((error) => {
       res.send('Server error:' + error);
+    });
+});
+
+// GET data for given range of dates from API with parameters received from the client and process the response
+router.get('/range/', (req, res) => {
+  const startTime = req.query.StartTime;
+  const endTime = req.query.EndTime;
+  const apiURL = `${baseURL}&StartTime=${startTime}&EndTime=${endTime}`;
+  axios
+    .get(apiURL)
+    .then((response) => {
+      let html = `<h3>${new Date(startTime).toLocaleDateString()} - ${new Date(endTime).toLocaleDateString()}</h3>`;
+      let array = transformData(response.data);
+      const sum = helpers.calculateSum(response.data, 'value');
+      makeCSVLog(response.data);
+      html += helpers.objToHTMLTable(array);
+      html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`;
+      res.send(html);
+    })
+    .catch((error) => {
+      res.send('Server error: ' + error);
     });
 });
 

@@ -1,0 +1,4 @@
+timestamp,reportingGroup,locationName,value,unit
+2022-02-14T00:00:00,Electricity,1000 Hakaniemen kauppahalli,1.1500000000000004,kWh
+2022-02-15T00:00:00,Electricity,1000 Hakaniemen kauppahalli,3.3599999999999994,kWh
+2022-02-16T00:00:00,Electricity,1000 Hakaniemen kauppahalli,4.899999999999998,kWh

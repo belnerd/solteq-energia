@@ -27,3 +27,8 @@ you can just install and run the server and serve the client ```\web\``` however
  npm install
  npm run start
 ```
+
+## Kuvaile, miten muuttaisit toteutusta, jos
+- päivämääräväliä halutaan muokata
+-- Sisällytin tämän ominaisuuden mukaan toteutukseen, eli käyttöliittymästä on mahdollista valita raportin aikaväli.
+Backendissä on tätä varten oma endpoint, jossa käsitellään ko. aikavälin datan haku API:lta.

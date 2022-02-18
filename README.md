@@ -32,3 +32,8 @@ you can just install and run the server and serve the client ```\web\``` however
 - päivämääräväliä halutaan muokata:
     - Sisällytin tämän ominaisuuden mukaan toteutukseen, eli käyttöliittymästä on mahdollista valita raportin aikaväli.
 Backendissä on tätä varten oma endpoint, jossa käsitellään ko. aikavälin datan haku API:lta.
+- kulutusdata haluttaisiinkin viikoittaisena:
+    - Tekisin backendille oman endpointin viikottaisille datalle.
+    - Koska ko. API:n swagger dokumentaation perusteella (https://helsinki-openapi.nuuka.cloud/swagger/index.html#/) viikottaista dataa ei suoraan ole saatavilla, tekisin toteutuksessa mukana olevan ```createMonthlyTable``` kaltaisen funktion jakaakseni datan viikoiksi.
+- kulutustietoja tulisi saada haettua myös toisesta palvelusta:
+    - 

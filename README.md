@@ -1,6 +1,8 @@
 # solteq-energia
 Solteq Utilities Academy preassignment
 
+Fetches and processes data from https://helsinki-openapi.nuuka.cloud/swagger/index.html#/ and renders it server side to be displayed on the UI.
+
 
 ## Installing and running the project
 

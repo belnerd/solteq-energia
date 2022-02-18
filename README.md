@@ -34,6 +34,8 @@ you can just install and run the server and serve the client ```\web\``` however
 Backendissä on tätä varten oma endpoint, jossa käsitellään ko. aikavälin datan haku API:lta.
 - kulutusdata haluttaisiinkin viikoittaisena:
     - Tekisin backendille oman endpointin viikottaisille datalle.
+    - Käyttöliittymään lisäisin valinnan datan esitysmuodolle (esim. päivä/viikko/kuukausi)
     - Koska ko. API:n swagger dokumentaation perusteella (https://helsinki-openapi.nuuka.cloud/swagger/index.html#/) viikottaista dataa ei suoraan ole saatavilla, tekisin toteutuksessa mukana olevan ```createMonthlyTable``` kaltaisen funktion jakaakseni datan viikoiksi.
 - kulutustietoja tulisi saada haettua myös toisesta palvelusta:
-    - 
+    - Tekisin backendille toista palvelua varten endpointin ja käyttöliittymään valinnan mistä palvelusta tietoa haetaan.
+    - Mikäli saatu tieto olisi samankaltaista kuin alkup. palvelun tieto mutta eri muotoista, transformaisin sen samanlaiseen muotoon, jotta voisin käyttää olemassa olevia funktioita ja esitystapaa.

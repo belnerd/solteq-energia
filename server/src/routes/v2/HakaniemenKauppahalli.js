@@ -88,6 +88,16 @@ const createTable = (data) => {
   return html;
 };
 
+// Create a CSV file from the data passed
+const makeCSVLog = (data) => {
+  data = data.map((item) => item.getFormatted());
+  const CSV = helpers.convertToCSV(data, true);
+  const now = helpers.createDatestring(Date.now());
+  const path = './logs/';
+  const filename = `${path}${now}-HakaniemenKauppahalli.csv`;
+  helpers.exportCSV(CSV, filename);
+};
+
 // Axios GET as EnergyData
 const getEnergyData = (url) => {
   const promise = axios.get(url);
@@ -120,6 +130,7 @@ router.get('/', (req, res) => {
         html += createMonthlyTable(data, i, 2019);
       }
       res.send(html);
+      makeCSVLog(data);
     })
     .catch((error) => {
       res.send(error.message);
@@ -138,6 +149,7 @@ router.get('/range/', (req, res) => {
       ).toLocaleDateString()}</h3>`;
       html += createTable(data);
       res.send(html);
+      makeCSVLog(data);
     })
     .catch((error) => {
       res.send('Server error: ' + error);

@@ -22,6 +22,9 @@ const months = [
   'Joulukuu',
 ];
 
+const baseURL =
+  'https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Daily/ListByProperty?Record=LocationName&SearchString=1000%20Hakaniemen%20kauppahalli&ReportingGroup=Electricity&';
+
 class EnergyData {
   constructor(timestamp, reportingGroup, locationName, value, unit) {
     this.timestamp = new Date(timestamp);
@@ -57,52 +60,87 @@ class EnergyData {
 
 // Create a monthly HTML table from the given data
 const createMonthlyTable = (data, month, year) => {
-    let html = `<h3>${months[month]}</h3>`;
-    let array = []
-    let sum = 0;
-    for (let i = 0; i < data.length; i++) {
-        if (data[i].checkMonthAndYear(month, year)) {
-            array.push(data[i].getFormatted())
-            sum += data[i].value
-        }
+  let html = `<h3>${months[month]}</h3>`;
+  let array = [];
+  let sum = 0;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].checkMonthAndYear(month, year)) {
+      array.push(data[i].getFormatted());
+      sum += data[i].value;
     }
-    // console.log(sum)
-    html += helpers.objToHTMLTable(array)
-    html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`;
-    return html;
-  };
+  }
+  html += helpers.objToHTMLTable(array);
+  html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`;
+  return html;
+};
 
-const baseURL =
-  'https://helsinki-openapi.nuuka.cloud/api/v1.0/EnergyData/Daily/ListByProperty?Record=LocationName&SearchString=1000%20Hakaniemen%20kauppahalli&ReportingGroup=Electricity&';
+// Create a single HTML table from the given data
+const createTable = (data) => {
+  let html = '';
+  let sum = 0;
+  let array = [];
+  for (let i = 0; i < data.length; i++) {
+    array.push(data[i].getFormatted());
+    sum += data[i].value;
+  }
+  html += helpers.objToHTMLTable(array);
+  html += `<p class="sum">Yhteensä ${sum.toFixed(2)} kWh</p>`;
+  return html;
+};
 
+// Axios GET as EnergyData
+const getEnergyData = (url) => {
+  const promise = axios.get(url);
+  const returnData = promise.then((response) => {
+    data = response.data;
+    let energyData = [];
+    for (let i in data) {
+      energyData.push(
+        new EnergyData(
+          data[i].timestamp,
+          data[i].reportingGroup,
+          data[i].locationName,
+          data[i].value,
+          data[i].unit
+        )
+      );
+    }
+    return energyData;
+  });
+  return returnData;
+};
+
+// Endpoint to get year 2019 and return monthly data as HTML tables
 router.get('/', (req, res) => {
   const apiURL = baseURL + 'StartTime=2019-01-01&EndTime=2019-12-31';
-  let energyData = [];
-  axios
-    .get(apiURL)
-    .then((response) => {
-      data = response.data;
-      for (let i in data) {
-        energyData.push(
-          new EnergyData(
-            data[i].timestamp,
-            data[i].reportingGroup,
-            data[i].locationName,
-            data[i].value,
-            data[i].unit
-          )
-        );
+  getEnergyData(apiURL)
+    .then((data) => {
+      let html = '';
+      for (let i = 0; i < months.length; i++) {
+        html += createMonthlyTable(data, i, 2019);
       }
-    })
-    .then(() => {
-        let html = '';
-        for (let i = 0; i < months.length; i++) {
-          html += createMonthlyTable(energyData, i, 2019);
-        }
-        res.send(html);
+      res.send(html);
     })
     .catch((error) => {
-      console.log(error);
+      res.send(error.message);
+    });
+});
+
+// Endpoint for given range of dates from API with parameters received from the client and process the response
+router.get('/range/', (req, res) => {
+  const startTime = req.query.StartTime;
+  const endTime = req.query.EndTime;
+  const apiURL = `${baseURL}&StartTime=${startTime}&EndTime=${endTime}`;
+  getEnergyData(apiURL)
+    .then((data) => {
+      let html = `<h3>${new Date(startTime).toLocaleDateString()} - ${new Date(
+        endTime
+      ).toLocaleDateString()}</h3>`;
+      html += createTable(data);
+      res.send(html);
+    })
+    .catch((error) => {
+      res.send('Server error: ' + error);
     });
 });
 

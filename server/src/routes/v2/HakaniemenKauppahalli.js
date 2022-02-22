@@ -139,8 +139,11 @@ router.get('/', (req, res) => {
 
 // Endpoint for given range of dates from API with parameters received from the client and process the response
 router.get('/range/', (req, res) => {
-  const startTime = req.query.StartTime;
-  const endTime = req.query.EndTime;
+  let startTime = req.query.StartTime;
+  let endTime = req.query.EndTime;
+  if (startTime > endTime) {
+    [startTime, endTime] = [endTime, startTime];
+  }
   const apiURL = `${baseURL}&StartTime=${startTime}&EndTime=${endTime}`;
   getEnergyData(apiURL)
     .then((data) => {

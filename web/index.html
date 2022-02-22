@@ -32,7 +32,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     let content = document.getElementById('content');
     content.innerHTML = '<p>Ladataan...</p>';
-    fetch('http://localhost:3000/api/HakaniemenKauppahalli')
+    fetch('http://localhost:3000/api/v2/HakaniemenKauppahalli')
       .then((response) => {
         return response.text();
       })

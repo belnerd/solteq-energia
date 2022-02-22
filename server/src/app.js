@@ -8,6 +8,7 @@ app.use(cors())
 // Routes
 // Hakaniemen Kauppahalli
 app.use('/api/HakaniemenKauppahalli', require('./routes/HakaniemenKauppahalli'))
+app.use('/api/v2/HakaniemenKauppahalli', require('./routes/v2/HakaniemenKauppahalli'))
 
 // Undefined endpoints
 app.use((req, res) => {
